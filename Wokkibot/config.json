@@ -1,0 +1,6 @@
+﻿{
+  "token": "TOKEN",
+  "lavalink_host": "127.0.0.1",
+  "lavalink_port": 2333,
+  "lavalink_password": "youshallnotpass"
+}
