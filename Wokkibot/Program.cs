@@ -7,7 +7,6 @@ using System.Collections.Generic;
 using DSharpPlus.SlashCommands;
 using System.IO;
 using System.Text;
-using System.Text.Json.Serialization;
 using Newtonsoft.Json;
 
 namespace Wokkibot
@@ -38,10 +37,10 @@ namespace Wokkibot
             using (var sr = new StreamReader(fs, new UTF8Encoding(false)))
                 json = await sr.ReadToEndAsync();
 
-            var cfgjson = JsonConvert.DeserializeObject<ConfigJson>(json);
+            var Config = JsonConvert.DeserializeObject<ConfigJson>(json);
             var cfg = new DiscordConfiguration
             {
-                Token = cfgjson.Token,
+                Token = Config.Token,
                 TokenType = TokenType.Bot,
 
                 AutoReconnect = true,
@@ -53,26 +52,18 @@ namespace Wokkibot
             // Lavalink configuration
             var endpoint = new ConnectionEndpoint
             {
-                Hostname = "127.0.0.1",
-                Port = 2333
+                Hostname = Config.LavalinkHost,
+                Port = Config.LavalinkPort
             };
 
             var lavalinkConfig = new LavalinkConfiguration
             {
-                Password = "youshallnotpass",
+                Password = Config.LavalinkPassword,
                 RestEndpoint = endpoint,
                 SocketEndpoint = endpoint
             };
 
             var lavalink = Discord.UseLavalink();
-
-            // Commands configuration
-            //var commands = Discord.UseCommandsNext(new CommandsNextConfiguration()
-            //{
-            //    StringPrefixes = new[] { "-" }
-            //});
-
-            //commands.RegisterCommands(Assembly.GetExecutingAssembly());
 
             var slash = Discord.UseSlashCommands();
             slash.RegisterCommands<MusicModule>();
