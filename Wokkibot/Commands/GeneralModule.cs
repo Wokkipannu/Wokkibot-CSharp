@@ -17,7 +17,7 @@ public class GeneralModule : SlashCommandModule
         DiscordEmbedBuilder Embed = new DiscordEmbedBuilder()
             .WithColor(new DiscordColor("#0077ea"))
             .WithTitle("Click here to invite")
-            .WithUrl("https://discord.com/api/oauth2/authorize?client_id=226891447054368769&permissions=0&scope=bot%20applications.commands");
+            .WithUrl($"https://discord.com/api/oauth2/authorize?client_id={ctx.Client.CurrentApplication.Id}&permissions=0&scope=bot%20applications.commands");
 
         builder = new DiscordWebhookBuilder().AddEmbed(Embed);
         await ctx.EditResponseAsync(builder);
