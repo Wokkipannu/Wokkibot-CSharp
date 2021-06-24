@@ -1,10 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
+using System.Text;
 using System.Threading.Tasks;
 using DSharpPlus;
 using DSharpPlus.Entities;
 using DSharpPlus.SlashCommands;
+using Newtonsoft.Json;
 
 public class FunModule : SlashCommandModule
 {
@@ -109,58 +112,12 @@ public class FunModule : SlashCommandModule
     [SlashCommand("pizza", "Get random pizza toppings")]
     public async Task PizzaCommand(InteractionContext ctx, [Option("amount", "Amount of toppings")] string amount = "4")
     {
-        // This is FUCKING HORRIBLE way of doing this, should be moved to a file eventually...
-        List<string> Toppings = new List<string>();
-        Toppings.Add("Ananas");
-        Toppings.Add("Kinkku");
-        Toppings.Add("Kebab");
-        Toppings.Add("Salami");
-        Toppings.Add("Pepperoni");
-        Toppings.Add("Herkkusieni");
-        Toppings.Add("Persikka");
-        Toppings.Add("Aurajuusto");
-        Toppings.Add("Chili");
-        Toppings.Add("Fetajuusto");
-        Toppings.Add("Jalopeno");
-        Toppings.Add("Jauheliha");
-        Toppings.Add("Kana");
-        Toppings.Add("Kananmuna");
-        Toppings.Add("Kapris");
-        Toppings.Add("Katkarapu");
-        Toppings.Add("Mozzarellajuusto");
-        Toppings.Add("Oliivi");
-        Toppings.Add("Paprika");
-        Toppings.Add("Pekoni");
-        Toppings.Add("Pippuri");
-        Toppings.Add("Rucola");
-        Toppings.Add("Simpukka");
-        Toppings.Add("Smetana");
-        Toppings.Add("Tabasco");
-        Toppings.Add("Tomaatti");
-        Toppings.Add("Tonnikala");
-        Toppings.Add("Tuplajuusto");
-        Toppings.Add("Valkosipuli");
-        Toppings.Add("BBQ-kastike");
-        Toppings.Add("Currykastike");
-        Toppings.Add("Häränliha");
-        Toppings.Add("Pinaatti");
-        Toppings.Add("Punasipuli");
-        Toppings.Add("Tacokastike");
-        Toppings.Add("Vuohenjuusto");
-        Toppings.Add("Cheddar");
-        Toppings.Add("Parsa");
-        Toppings.Add("Suolakurkku");
-        Toppings.Add("Kylmäsavulohi");
-        Toppings.Add("Poronliha");
-        Toppings.Add("Banaani");
-        Toppings.Add("Anjovis");
-        Toppings.Add("Avocado");
-        Toppings.Add("Munakoiso");
-        Toppings.Add("Kurkku");
-        Toppings.Add("Parsakaali");
-        Toppings.Add("Kirsikkatomaatti");
-        Toppings.Add("Salaatti");
-        Toppings.Add("Hunaja");
+        var json = "";
+        using (var fs = File.OpenRead("toppings.json"))
+        using (var sr = new StreamReader(fs, new UTF8Encoding(false)))
+            json = await sr.ReadToEndAsync();
+
+        List<string> Toppings = JsonConvert.DeserializeObject<List<string>>(json);
 
         if (Int32.TryParse(amount, out int toppingsCount))
         {
