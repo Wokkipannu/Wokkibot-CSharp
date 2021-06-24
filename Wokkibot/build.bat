@@ -1,1 +1,1 @@
-dotnet build --runtime ubuntu.18.04-x64
+dotnet build --configuration Release --runtime ubuntu.18.04-x64
