@@ -198,7 +198,7 @@ public class FunModule : SlashCommandModule
         public override async Task<bool> ExecuteChecksAsync(InteractionContext ctx)
             => await Task.Run(SyncCheck(ctx.Guild.Id));
         
-        private bool SyncCheck(bool GId)
+        private bool SyncCheck(ulong GId)
             => GId == Id;
     }
 
@@ -212,7 +212,7 @@ public class FunModule : SlashCommandModule
         public override async Task<bool> ExecuteChecksAsync(InteractionContext ctx)
             => await Task.Run(SyncCheck(ctx.User.Id));
             
-        private bool SyncCheck(bool UId)
+        private bool SyncCheck(ulong UId)
             => UId == Id;
     }
 }
