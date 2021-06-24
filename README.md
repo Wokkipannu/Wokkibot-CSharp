@@ -1,5 +1,7 @@
 # Wokkibot
  Wokkibot rebuilt on C#
+ 
+![Build](https://github.com/wokkipannu/Wokkibot-CSharp/actions/workflows/build.yml/badge.svg)
 
 # Setup
 - Get lavalink
