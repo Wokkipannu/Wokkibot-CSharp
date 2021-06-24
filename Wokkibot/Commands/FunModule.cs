@@ -196,7 +196,8 @@ public class FunModule : SlashCommandModule
             => Id = id;
 
         public override async Task<bool> ExecuteChecksAsync(InteractionContext ctx)
-            => ctx.Guild.Id == Id;
+            => await Task.Run(() => ctx.Guild.Id == Id);
+        
     }
 
     public class RequireUserIdAttribute : SlashCheckBaseAttribute
@@ -207,6 +208,7 @@ public class FunModule : SlashCommandModule
             => Id = id;
 
         public override async Task<bool> ExecuteChecksAsync(InteractionContext ctx)
-            => ctx.User.Id == Id;
+            => await Task.Run(() => ctx.User.Id == Id);
+            
     }
 }
