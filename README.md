@@ -1,5 +1,5 @@
 # Wokkibot
- Wokkibot rebuilt in C#
+ Wokkibot rebuilt in C# .NET
  
 ![Build](https://github.com/wokkipannu/Wokkibot-CSharp/actions/workflows/build.yml/badge.svg)
 
