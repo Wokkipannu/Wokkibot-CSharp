@@ -99,6 +99,7 @@ namespace Wokkibot.Commands
                     InteractionResponseType.ChannelMessageWithSource, 
                     new DiscordInteractionResponseBuilder().WithContent("No more songs in queue")
                 );
+                Wokkibot.Queue.GuildQueue.Remove(sender.Guild.Id.ToString());
                 return;
             }
 
