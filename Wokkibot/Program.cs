@@ -8,6 +8,7 @@ using DSharpPlus.SlashCommands;
 using System.IO;
 using System.Text;
 using Newtonsoft.Json;
+using Wokkibot.Commands;
 
 namespace Wokkibot
 {
@@ -66,9 +67,7 @@ namespace Wokkibot
             var lavalink = Discord.UseLavalink();
 
             var slash = Discord.UseSlashCommands();
-            slash.RegisterCommands<MusicModule>();
-            slash.RegisterCommands<FunModule>();
-            slash.RegisterCommands<GeneralModule>();
+            slash.RegisterCommands<CommandModule>();
 
             await Discord.ConnectAsync();
             await lavalink.ConnectAsync(lavalinkConfig);
