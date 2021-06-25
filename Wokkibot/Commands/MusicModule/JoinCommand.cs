@@ -35,6 +35,19 @@ namespace Wokkibot.Commands
                 return;
             }
 
+            var conn = node.GetGuildConnection(ctx.Guild);
+            if (conn != null)
+            {
+                if (conn.Channel == channel)
+                {
+                    await ctx.CreateResponseAsync(
+                        InteractionResponseType.ChannelMessageWithSource,
+                        new DiscordInteractionResponseBuilder().WithContent("I am already connected to your channel")
+                    );
+                    return;
+                }
+            }
+
             await node.ConnectAsync(channel);
             await ctx.CreateResponseAsync(
                 InteractionResponseType.ChannelMessageWithSource,
