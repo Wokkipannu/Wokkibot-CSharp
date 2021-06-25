@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using DSharpPlus;
@@ -17,11 +18,22 @@ namespace Wokkibot.Commands
             var node = lava.ConnectedNodes.Values.First();
             var conn = node.GetGuildConnection(ctx.Member.VoiceState.Guild);
 
+            List<TrackItem> trackQueue = Wokkibot.Queue.GuildQueue[ctx.Guild.Id.ToString()];    
+
             if (conn == null)
             {
                 await ctx.CreateResponseAsync(
                     InteractionResponseType.ChannelMessageWithSource,
                     new DiscordInteractionResponseBuilder().WithContent("Lavalink is not connected")
+                );
+                return;
+            }
+
+            if (trackQueue == null || trackQueue.Count() == 0)
+            {
+                await ctx.CreateResponseAsync(
+                    InteractionResponseType.ChannelMessageWithSource,
+                    new DiscordInteractionResponseBuilder().WithContent("No songs in queue")
                 );
                 return;
             }
