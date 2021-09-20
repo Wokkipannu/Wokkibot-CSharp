@@ -41,6 +41,16 @@ namespace Wokkibot.Commands
                 }
 
                 await node.ConnectAsync(channel);
+                conn = node.GetGuildConnection(ctx.Member.VoiceState.Guild);
+
+                if (conn == null)
+                {
+                    await ctx.CreateResponseAsync(
+                       InteractionResponseType.ChannelMessageWithSource,
+                       new DiscordInteractionResponseBuilder().WithContent("Connection error")
+                    );
+                    return;
+                }
             }
 
             var loadResult = await node.Rest.GetTracksAsync(search);
@@ -71,12 +81,20 @@ namespace Wokkibot.Commands
 
             if (trackQueue.Count == 1)
             {
-                await conn.PlayAsync(track);
-                conn.PlaybackFinished += PlayNext;
-                await ctx.CreateResponseAsync(
-                    InteractionResponseType.ChannelMessageWithSource, 
-                    new DiscordInteractionResponseBuilder().WithContent($"Now playing {track.Title} requested by {ctx.Member.DisplayName}")
-                );
+                if (conn != null) {
+                    await conn.PlayAsync(track);
+                    conn.PlaybackFinished += PlayNext;
+                    await ctx.CreateResponseAsync(
+                        InteractionResponseType.ChannelMessageWithSource,
+                        new DiscordInteractionResponseBuilder().WithContent($"Now playing {track.Title} requested by {ctx.Member.DisplayName}")
+                    );
+                } else
+                {
+                    await ctx.CreateResponseAsync(
+                        InteractionResponseType.ChannelMessageWithSource,
+                        new DiscordInteractionResponseBuilder().WithContent("Connection error")
+                    );
+                }
             }
             else
             {
