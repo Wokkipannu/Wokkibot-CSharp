@@ -66,18 +66,7 @@ namespace Wokkibot.Commands
 
             var track = loadResult.Tracks.First();
 
-            List<TrackItem> trackQueue;
-
-            if (Wokkibot.Queue.GuildQueue.ContainsKey(ctx.Guild.Id.ToString()) == false)
-            {
-                Wokkibot.Queue.GuildQueue.Add(ctx.Guild.Id.ToString(), new List<TrackItem> { new TrackItem { Context = ctx, Track = track } });
-                trackQueue = Wokkibot.Queue.GuildQueue[ctx.Guild.Id.ToString()];
-            }
-            else
-            {
-                trackQueue = Wokkibot.Queue.GuildQueue[ctx.Guild.Id.ToString()];
-                trackQueue.Add(new TrackItem { Context = ctx, Track = track });
-            }
+            var trackQueue = Wokkibot.Queue.AddToQueue(ctx, track);
 
             if (trackQueue.Count == 1)
             {
@@ -88,7 +77,8 @@ namespace Wokkibot.Commands
                         InteractionResponseType.ChannelMessageWithSource,
                         new DiscordInteractionResponseBuilder().WithContent($"Now playing {track.Title} requested by {ctx.Member.DisplayName}")
                     );
-                } else
+                } 
+                else
                 {
                     await ctx.CreateResponseAsync(
                         InteractionResponseType.ChannelMessageWithSource,
@@ -107,31 +97,41 @@ namespace Wokkibot.Commands
 
         private async Task PlayNext(LavalinkGuildConnection sender, DSharpPlus.Lavalink.EventArgs.TrackFinishEventArgs e)
         {
-            List<TrackItem> trackQueue = Wokkibot.Queue.GuildQueue[sender.Guild.Id.ToString()];
-            var ctx = trackQueue[0].Context;
-            trackQueue.RemoveAt(0);
+            var trackItem = Wokkibot.Queue.GetNext(sender.Guild.Id.ToString());
 
-            if (trackQueue.Count == 0)
+            switch (trackItem.Item1)
             {
-                await ctx.CreateResponseAsync(
-                    InteractionResponseType.ChannelMessageWithSource, 
-                    new DiscordInteractionResponseBuilder().WithContent("No more songs in queue")
-                );
-                Wokkibot.Queue.GuildQueue.Remove(sender.Guild.Id.ToString());
-                return;
+                case Queue.NextStatus.Empty:
+                    {
+                        var ctx = trackItem.Item2.Context;
+                        var lava = ctx.Client.GetLavalink();
+                        var node = lava.ConnectedNodes.Values.First();
+                        var conn = node.GetGuildConnection(ctx.Member.VoiceState.Guild);
+                        await ctx.CreateResponseAsync(
+                            InteractionResponseType.ChannelMessageWithSource,
+                            new DiscordInteractionResponseBuilder().WithContent("No more songs in queue")
+                        );
+                        await conn.StopAsync();
+                        return;
+                    }
+                case Queue.NextStatus.Found:
+                    {
+                        var track = trackItem.Item2;
+                        var lava = track.Context.Client.GetLavalink();
+                        var node = lava.ConnectedNodes.Values.First();
+                        var conn = node.GetGuildConnection(track.Context.Member.VoiceState.Guild);
+
+                        await conn.PlayAsync(track.Track);
+                        //conn.PlaybackFinished += PlayNext;
+                        await track.Context.Channel.SendMessageAsync(
+                            new DiscordMessageBuilder().WithContent($"Now playing {track.Track.Title} requested by {track.Context.Member.DisplayName}")
+                        );
+                        return;
+                    }
+                default:
+                    return;
             }
 
-            var track = trackQueue.First();
-            var lava = track.Context.Client.GetLavalink();
-            var node = lava.ConnectedNodes.Values.First();
-            var conn = node.GetGuildConnection(track.Context.Member.VoiceState.Guild);
-
-            await conn.PlayAsync(track.Track);
-            //conn.PlaybackFinished += PlayNext;
-            await track.Context.CreateResponseAsync(
-                InteractionResponseType.ChannelMessageWithSource,
-                new DiscordInteractionResponseBuilder().WithContent($"Now playing {track.Track.Title} requested by {track.Context.Member.DisplayName}")
-            );
         }
     }
 }
