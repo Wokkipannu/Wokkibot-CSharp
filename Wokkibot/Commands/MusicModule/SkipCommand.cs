@@ -18,34 +18,36 @@ namespace Wokkibot.Commands
             var node = lava.ConnectedNodes.Values.First();
             var conn = node.GetGuildConnection(ctx.Member.VoiceState.Guild);
 
-            List<TrackItem> trackQueue = Wokkibot.Queue.GuildQueue[ctx.Guild.Id.ToString()];    
+            var trackItem = Wokkibot.Queue.GetQueue(ctx.Guild.Id.ToString());
 
-            if (conn == null)
+            if (trackItem.Item1)
+            {
+                if (trackItem.Item2.Count > 0)
+                {
+                    await ctx.CreateResponseAsync(
+                        InteractionResponseType.ChannelMessageWithSource,
+                        new DiscordInteractionResponseBuilder().WithContent("Skipped")
+                    );
+                    await conn.StopAsync();
+                }
+                else
+                {
+                    await ctx.CreateResponseAsync(
+                        InteractionResponseType.ChannelMessageWithSource,
+                        new DiscordInteractionResponseBuilder().WithContent("No more songs in queue")
+                    );
+                }
+
+                return;
+            }
+            else
             {
                 await ctx.CreateResponseAsync(
                     InteractionResponseType.ChannelMessageWithSource,
-                    new DiscordInteractionResponseBuilder().WithContent("Lavalink is not connected")
+                    new DiscordInteractionResponseBuilder().WithContent("Not in a voice channel")
                 );
                 return;
             }
-
-            if (trackQueue == null || trackQueue.Count() == 0)
-            {
-                await ctx.CreateResponseAsync(
-                    InteractionResponseType.ChannelMessageWithSource,
-                    new DiscordInteractionResponseBuilder().WithContent("No songs in queue")
-                );
-                return;
-            }
-
-            Console.WriteLine(conn.CurrentState);
-
-            await conn.StopAsync();
-
-            await ctx.CreateResponseAsync(
-                InteractionResponseType.ChannelMessageWithSource,
-                new DiscordInteractionResponseBuilder().WithContent("Skipped")
-            );
         }
     }
 }

@@ -14,7 +14,73 @@ namespace Wokkibot
 {
     static class Queue
     {
-        public static Dictionary<string, List<TrackItem>> GuildQueue { get; set; }
+        private static Dictionary<string, List<TrackItem>> GuildQueue;
+
+
+        public static void Init()
+        {
+            GuildQueue = new Dictionary<string, List<TrackItem>> { };
+        }
+
+        public static (bool, List<TrackItem>) GetQueue(string id)
+        {
+            if (GuildQueue.ContainsKey(id))
+            {
+                return (true, GuildQueue[id]);
+            } else
+            {
+                return (false, new List<TrackItem> { });
+            }
+        }
+
+        public static List<TrackItem> AddToQueue(InteractionContext ctx, LavalinkTrack track)
+        {
+            var guildID = ctx.Guild.Id.ToString();
+            var trackItem = new TrackItem { Context = ctx, Track = track };
+
+            var trackQueue = GetQueue(guildID);
+            if (!trackQueue.Item1)
+            {
+                GuildQueue.Add(guildID, new List<TrackItem> { trackItem });
+            } else
+            {
+                trackQueue.Item2.Add(trackItem);
+                GuildQueue[guildID] = trackQueue.Item2;
+            }
+
+            return GuildQueue[guildID];
+        }
+
+        public enum NextStatus
+        {
+            Found,
+            Empty,
+            NoGuild,
+        }
+
+        public static (NextStatus, TrackItem) GetNext(string id)
+        {
+            var trackQueue = GetQueue(id);
+
+            if (!trackQueue.Item1)
+            {
+                return (NextStatus.Empty, new TrackItem { });
+            }
+            else
+            {
+                var ctx = trackQueue.Item2[0].Context;
+                trackQueue.Item2.RemoveAt(0);
+                GuildQueue[id] = trackQueue.Item2;
+                if (GuildQueue[id].Count > 0)
+                {
+                    return (NextStatus.Found, GuildQueue[id][0]);
+                }
+                else
+                {
+                    return (NextStatus.Empty, new TrackItem { Context = ctx, Track = new LavalinkTrack() });
+                }
+            }
+        }
     }
 
     public class TrackItem
@@ -27,7 +93,7 @@ namespace Wokkibot
     {
         static void Main(string[] args)
         {
-            Queue.GuildQueue = new Dictionary<string, List<TrackItem>> { };
+            Queue.Init();
             MainAsync().GetAwaiter().GetResult();
         }
 
